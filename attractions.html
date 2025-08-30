@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attractions - Palm Beach Pass</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#2D5016">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <style>
+        :root {
+            --palm-green: #2D5016;
+            --ocean-blue: #006B7D;
+            --sand: #FAF3E3;
+            --coral: #FF6B6B;
+            --gold: #D4AF37;
+            --white: #FFFFFF;
+            --text-dark: #1A1A1A;
+            --text-light: #666666;
+            --success: #10B981;
+            --shadow: 0 4px 15px rgba(0,0,0,0.1);
+            --shadow-lg: 0 8px 30px rgba(0,0,0,0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #FAF3E3 0%, #FFFFFF 100%);
+            min-height: 100vh;
+            color: var(--text-dark);
+            line-height: 1.6;
+            padding-bottom: 80px;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: var(--sand);
+        }
+
+        .page-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--palm-green);
+        }
+
+        .search-btn {
+            background: none;
+            border: none;
+            font-size: 1.3rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .search-btn:hover {
+            background: var(--sand);
+        }
+
+        /* Search Bar */
+        .search-container {
+            padding: 1rem;
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+            position: sticky;
+            top: 70px;
+            z-index: 90;
+            display: none;
+        }
+
+        .search-container.active {
+            display: block;
+        }
+
+        .search-box {
+            position: relative;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 50px;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            border-color: var(--ocean-blue);
+            box-shadow: 0 0 0 3px rgba(0,107,125,0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+            font-size: 1.2rem;
+        }
+
+        /* Filters */
+        .filters-container {
+            background: white;
+            padding: 1rem;
+            border-bottom: 1px solid #e0e0e0;
+            position: sticky;
+            top: 70px;
+            z-index: 85;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .filter-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .filter-tab {
+            background: white;
+            border: 1px solid #e0e0e0;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+
+        .filter-tab:hover {
+            border-color: var(--ocean-blue);
+        }
+
+        .filter-tab.active {
+            background: var(--palm-green);
+            color: white;
+            border-color: var(--palm-green);
+        }
+
+        .filter-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .results-count {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .sort-select {
+            background: white;
+            border: 1px solid #e0e0e0;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .view-btn {
+            background: none;
+            border: none;
+            padding: 0.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+            width: 40px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .view-btn.active {
+            background: var(--palm-green);
+            color: white;
+        }
+
+        /* Hero Banner */
+        .hero-banner {
+            background: linear-gradient(135deg, var(--palm-green), var(--ocean-blue));
+            color: white;
+            padding: 2rem 1rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="1" fill="white" opacity="0.1"/><circle cx="80" cy="30" r="1.5" fill="white" opacity="0.1"/><circle cx="40" cy="70" r="1" fill="white" opacity="0.1"/></svg>') repeat;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100px); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-bottom: 1rem;
+        }
+
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .hero-stat {
+            text-align: center;
+        }
+
+        .hero-stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--gold);
+        }
+
+        .hero-stat-label {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        /* Attractions Grid */
+        .attractions-container {
+            padding: 1rem;
+        }
+
+        .attractions-grid {
+            display: grid;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .attractions-grid.list-view {
+            grid-template-columns: 1fr;
+        }
+
+        .attractions-grid.grid-view {
+            grid-template-columns: 1fr;
+        }
+
+        .attraction-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .attraction-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .attraction-image {
+            height: 180px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: white;
+        }
+
+        .attraction-card.list-view .attraction-image {
+            height: 120px;
+            width: 120px;
+            flex-shrink: 0;
+        }
+
+        .category-badge {
+            position: absolute;
+            top: 0.75rem;
+            left: 0.75rem;
+            background: rgba(255,255,255,0.95);
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+        }
+
+        .free-badge {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            background: var(--success);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .attraction-info {
+            padding: 1rem;
+        }
+
+        .attraction-card.list-view {
+            display: flex;
+            align-items: center;
+        }
+
+        .attraction-card.list-view .attraction-info {
+            flex: 1;
+            padding: 1rem;
+        }
+
+        .attraction-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+            line-height: 1.3;
+        }
+
+        .attraction-price {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .regular-price {
+            color: var(--text-light);
+            text-decoration: line-through;
+            font-size: 0.9rem;
+        }
+
+        .pass-price {
+            color: var(--success);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .attraction-description {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            line-height: 1.4;
+            margin-bottom: 0.75rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .attraction-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .attraction-rating {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .attraction-distance {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        /* Load More */
+        .load-more {
+            text-align: center;
+            padding: 2rem 1rem;
+        }
+
+        .btn-load-more {
+            background: var(--palm-green);
+            color: white;
+            border: none;
+            padding: 1rem 3rem;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-load-more:hover {
+            background: var(--ocean-blue);
+            transform: translateY(-2px);
+        }
+
+        .btn-load-more:disabled {
+            background: var(--text-light);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            padding: 0.5rem 0;
+            z-index: 100;
+            box-shadow: 0 -2px 15px rgba(0,0,0,0.1);
+        }
+
+        .bottom-nav-content {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-light);
+            font-size: 0.75rem;
+            padding: 0.5rem;
+            border-radius: 10px;
+            transition: all 0.3s;
+            min-width: 60px;
+        }
+
+        .nav-item.active {
+            color: var(--palm-green);
+            background: var(--sand);
+        }
+
+        .nav-item-icon {
+            font-size: 1.3rem;
+            margin-bottom: 0.25rem;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .modal-close:hover {
+            background: var(--sand);
+        }
+
+        .modal-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, var(--palm-green), var(--ocean-blue));
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: white;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--palm-green);
+            margin-bottom: 1rem;
+        }
+
+        .modal-price {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .modal-regular-price {
+            color: var(--text-light);
+            text-decoration: line-through;
+            font-size: 1.1rem;
+        }
+
+        .modal-free-badge {
+            background: var(--success);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .modal-description {
+            color: var(--text-dark);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-features {
+            list-style: none;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-features li {
+            padding: 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .modal-features li:before {
+            content: "✓";
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        .modal-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .btn-modal-action {
+            padding: 1rem;
+            border: none;
+            border-radius: 15px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-get-directions {
+            background: var(--ocean-blue);
+            color: white;
+        }
+
+        .btn-get-directions:hover {
+            background: var(--palm-green);
+            transform: translateY(-2px);
+        }
+
+        .btn-add-favorite {
+            background: var(--sand);
+            color: var(--text-dark);
+        }
+
+        .btn-add-favorite:hover {
+            background: var(--gold);
+            color: white;
+        }
+
+        /* Loading */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-container {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-light);
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f3f3f3;
+            border-top-color: var(--palm-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--palm-green);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            box-shadow: var(--shadow-lg);
+            z-index: 3000;
+            animation: toastSlideUp 0.3s ease-out;
+            font-weight: 500;
+        }
+
+        @keyframes toastSlideUp {
+            from {
+                opacity: 0;
+                transform: translate(-50%, 100px);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, 0);
+            }
+        }
+
+        /* Desktop Styles */
+        @media (min-width: 768px) {
+            body {
+                padding-bottom: 0;
+            }
+
+            .attractions-container {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 2rem;
+            }
+
+            .attractions-grid.grid-view {
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                gap: 2rem;
+            }
+
+            .attractions-grid.list-view {
+                grid-template-columns: 1fr;
+                max-width: 800px;
+                margin: 0 auto;
+            }
+
+            .hero-stats {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 3rem;
+            }
+
+            .hero-stat-number {
+                font-size: 2rem;
+            }
+
+            .attraction-image {
+                height: 220px;
+            }
+
+            .bottom-nav {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <button class="back-btn" onclick="goBack()">←</button>
+            <h1 class="page-title">Attractions</h1>
+            <button class="search-btn" onclick="toggleSearch()">🔍</button>
+        </div>
+    </header>
+
+    <!-- Search Container -->
+    <div class="search-container" id="searchContainer">
+        <div class="search-box">
+            <div class="search-icon">🔍</div>
+            <input type="text" class="search-input" id="searchInput" placeholder="Search attractions..." onkeyup="searchAttractions()">
+        </div>
+    </div>
+
+    <!-- Hero Banner -->
+    <div class="hero-banner">
+        <div class="hero-content">
+            <h2 class="hero-title">156+ ATTRACTIONS INCLUDED</h2>
+            <p class="hero-subtitle">FREE with your Palm Beach Pass</p>
+            
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <div class="hero-stat-number">156+</div>
+                    <div class="hero-stat-label">Attractions</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-number">50%</div>
+                    <div class="hero-stat-label">Avg Savings</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-number">200K+</div>
+                    <div class="hero-stat-label">Happy Visitors</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-container">
+        <div class="filter-tabs">
+            <button class="filter-tab active" onclick="filterAttractions('all')" data-category="all">All</button>
+            <button class="filter-tab" onclick="filterAttractions('family')" data-category="family">Family</button>
+            <button class="filter-tab" onclick="filterAttractions('outdoor')" data-category="outdoor">Outdoor</button>
+            <button class="filter-tab" onclick="filterAttractions('culture')" data-category="culture">Culture</button>
+            <button class="filter-tab" onclick="filterAttractions('adventure')" data-category="adventure">Adventure</button>
+            <button class="filter-tab" onclick="filterAttractions('water')" data-category="water">Water</button>
+        </div>
+        
+        <div class="filter-actions">
+            <span class="results-count" id="resultsCount">156 attractions found</span>
+            
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                <select class="sort-select" onchange="sortAttractions(this.value)">
+                    <option value="name">Sort by Name</option>
+                    <option value="price">Sort by Price</option>
+                    <option value="rating">Sort by Rating</option>
+                    <option value="distance">Sort by Distance</option>
+                </select>
+                
+                <div class="view-toggle">
+                    <button class="view-btn active" onclick="setView('grid')" data-view="grid">⊞</button>
+                    <button class="view-btn" onclick="setView('list')" data-view="list">☰</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Attractions Container -->
+    <div class="attractions-container">
+        <div class="attractions-grid grid-view" id="attractionsGrid">
+            <!-- Attractions will be loaded here -->
+        </div>
+        
+        <!-- Loading -->
+        <div class="loading-container" id="loadingContainer" style="display: none;">
+            <div class="loading-spinner"></div>
+            <p>Loading more attractions...</p>
+        </div>
+        
+        <!-- Load More -->
+        <div class="load-more">
+            <button class="btn-load-more" onclick="loadMoreAttractions()" id="loadMoreBtn">
+                Load More Attractions
+            </button>
+        </div>
+    </div>
+
+    <!-- Attraction Detail Modal -->
+    <div class="modal" id="attractionModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">×</button>
+            
+            <div class="modal-image" id="modalImage">🎢</div>
+            
+            <h2 class="modal-title" id="modalTitle">Attraction Name</h2>
+            
+            <div class="modal-price">
+                <span class="modal-regular-price" id="modalRegularPrice">Regular $29.95</span>
+                <span class="modal-free-badge">FREE with Pass</span>
+            </div>
+            
+            <p class="modal-description" id="modalDescription">
+                Experience the thrill and excitement at this amazing attraction!
+            </p>
+            
+            <ul class="modal-features" id="modalFeatures">
+                <li>Skip-the-line access</li>
+                <li>Family-friendly experience</li>
+                <li>Professional guides available</li>
+            </ul>
+            
+            <div class="modal-actions">
+                <button class="btn-modal-action btn-get-directions" onclick="getDirections()">
+                    📍 Directions
+                </button>
+                <button class="btn-modal-action btn-add-favorite" onclick="toggleFavorite()">
+                    ❤️ Favorite
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <div class="bottom-nav-content">
+            <a href="index.html" class="nav-item">
+                <div class="nav-item-icon">🏠</div>
+                <div>Home</div>
+            </a>
+            <a href="attractions.html" class="nav-item active">
+                <div class="nav-item-icon">🏖️</div>
+                <div>Explore</div>
+            </a>
+            <a href="my-passes.html" class="nav-item">
+                <div class="nav-item-icon">🎫</div>
+                <div>My Passes</div>
+            </a>
+            <a href="account.html" class="nav-item">
+                <div class="nav-item-icon">👤</div>
+                <div>Account</div>
+            </a>
+        </div>
+    </nav>
+
+    <script>
+        // App State
+        let appState = {
+            attractions: [],
+            filteredAttractions: [],
+            currentCategory: 'all',
+            currentView: 'grid',
+            currentSort: 'name',
+            searchQuery: '',
+            displayedCount: 12,
+            selectedAttraction: null,
+            favorites: []
+        };
+
+        // Sample attractions data
+        const attractionsData = [
+            {
+                id: 'lion-safari',
+                name: 'Lion Country Safari',
+                category: 'family',
+                description: 'Drive through 4 miles of open range habitat with over 1,000 animals roaming free. Florida\'s only drive-through safari experience!',
+                regularPrice: 39.95,
+                image: '🦁',
+                gradient: 'linear-gradient(135deg, #8B4513, #DEB887)',
+                rating: 4.8,
+                distance: '15 mi',
+                features: ['Drive-through safari', 'Walk-through area', 'Educational shows', 'Gift shop']
+            },
+            {
+                id: 'rapids-water-park',
+                name: 'Rapids Water Park',
+                category: 'water',
+                description: 'Thrilling water slides, lazy river, and family-friendly attractions for all ages.',
+                regularPrice: 34.99,
+                image: '💦',
+                gradient: 'linear-gradient(135deg, #00BFFF, #1E90FF)',
+                rating: 4.6,
+                distance: '8 mi',
+                features: ['Multi-level slides', 'Lazy river', 'Kids area', 'Concessions']
+            },
+            {
+                id: 'norton-museum',
+                name: 'Norton Museum of Art',
+                category: 'culture',
+                description: 'World-class art collection spanning American, European, and Chinese art.',
+                regularPrice: 18.00,
+                image: '🎨',
+                gradient: 'linear-gradient(135deg, #4B0082, #8A2BE2)',
+                rating: 4.7,
+                distance: '5 mi',
+                features: ['Guided tours', 'Interactive exhibits', 'Gift shop', 'Café']
+            },
+            {
+                id: 'flyboard-south-florida',
+                name: 'Flyboard South Florida',
+                category: 'adventure',
+                description: 'Experience the thrill of flying above water with state-of-the-art flyboard technology.',
+                regularPrice: 199.00,
+                image: '🏄',
+                gradient: 'linear-gradient(135deg, #1E90FF, #00BFFF)',
+                rating: 4.9,
+                distance: '12 mi',
+                features: ['Professional instruction', 'Safety equipment included', 'Photo/video service', 'All skill levels']
+            },
+            {
+                id: 'palm-beach-zoo',
+                name: 'Palm Beach Zoo',
+                category: 'family',
+                description: '900+ animals with conservation programs and educational experiences.',
+                regularPrice: 24.95,
+                image: '🐘',
+                gradient: 'linear-gradient(135deg, #228B22, #90EE90)',
+                rating: 4.5,
+                distance: '10 mi',
+                features: ['Conservation programs', 'Interactive exhibits', 'Educational talks', 'Playground']
+            },
+            {
+                id: 'morikami-gardens',
+                name: 'Morikami Gardens',
+                category: 'culture',
+                description: 'Beautiful Japanese gardens and cultural exhibits showcasing Japanese heritage.',
+                regularPrice: 15.00,
+                image: '🌸',
+                gradient: 'linear-gradient(135deg, #228B22, #32CD32)',
+                rating: 4.8,
+                distance: '20 mi',
+                features: ['Six themed gardens', 'Museum exhibits', 'Tea ceremony', 'Walking trails']
+            },
+            {
+                id: 'boynton-beach-dive',
+                name: 'Boynton Beach Dive Center',
+                category: 'outdoor',
+                description: 'Explore underwater wonders with guided diving experiences and equipment rental.',
+                regularPrice: 85.00,
+                image: '🤿',
+                gradient: 'linear-gradient(135deg, #006B7D, #00A8CC)',
+                rating: 4.4,
+                distance: '18 mi',
+                features: ['Guided dives', 'Equipment rental', 'Certification courses', 'Underwater photography']
+            },
+            {
+                id: 'boca-museum',
+                name: 'Boca Raton Museum',
+                category: 'culture',
+                description: 'Contemporary and modern art collections featuring rotating exhibitions.',
+                regularPrice: 18.00,
+                image: '🏛️',
+                gradient: 'linear-gradient(135deg, #8B7355, #D4AF37)',
+                rating: 4.3,
+                distance: '25 mi',
+                features: ['Contemporary art', 'Rotating exhibitions', 'Educational programs', 'Museum shop']
+            }
+        ];
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', initializeApp);
+
+        function initializeApp() {
+            // Load attractions data
+            appState.attractions = [...attractionsData];
+            appState.filteredAttractions = [...attractionsData];
+            
+            // Load favorites from storage
+            const favorites = localStorage.getItem('favoriteAttractions');
+            if (favorites) {
+                appState.favorites = JSON.parse(favorites);
+            }
+            
+            // Display attractions
+            displayAttractions();
+            
+            // Update results count
+            updateResultsCount();
+            
+            console.log('Attractions app initialized');
+        }
+
+        function displayAttractions() {
+            const grid = document.getElementById('attractionsGrid');
+            const attractionsToShow = appState.filteredAttractions.slice(0, appState.displayedCount);
+            
+            grid.innerHTML = attractionsToShow.map(attraction => createAttractionCard(attraction)).join('');
+            
+            // Update load more button
+            const loadMoreBtn = document.getElementById('loadMoreBtn');
+            if (appState.displayedCount >= appState.filteredAttractions.length) {
+                loadMoreBtn.style.display = 'none';
+            } else {
+                loadMoreBtn.style.display = 'inline-flex';
+            }
+            
+            // Add animation
+            requestAnimationFrame(() => {
+                document.querySelectorAll('.attraction-card').forEach((card, index) => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+                    setTimeout(() => {
+                        card.style.transition = 'all 0.5s ease';
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, index * 50);
+                });
+            });
+        }
+
+        function createAttractionCard(attraction) {
+            const isFavorite = appState.favorites.includes(attraction.id);
+            const isListView = appState.currentView === 'list';
+            
+            return `
+                <div class="attraction-card ${isListView ? 'list-view' : ''}" onclick="showAttractionDetail('${attraction.id}')">
+                    <div class="attraction-image" style="background: ${attraction.gradient}">
+                        ${attraction.image}
+                        <div class="category-badge">${getCategoryIcon(attraction.category)} ${attraction.category}</div>
+                        <div class="free-badge">FREE</div>
+                    </div>
+                    <div class="attraction-info">
+                        <h3 class="attraction-title">${attraction.name}</h3>
+                        <div class="attraction-price">
+                            <span class="regular-price">Regular $${attraction.regularPrice}</span>
+                            <span class="pass-price">FREE with pass</span>
+                        </div>
+                        <p class="attraction-description">${attraction.description}</p>
+                        <div class="attraction-meta">
+                            <div class="attraction-rating">
+                                ⭐ ${attraction.rating}
+                            </div>
+                            <div class="attraction-distance">
+                                📍 ${attraction.distance}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getCategoryIcon(category) {
+            const icons = {
+                family: '👨‍👩‍👧‍👦',
+                outdoor: '🏔️',
+                culture: '🏛️',
+                adventure: '🎯',
+                water: '🏊'
+            };
+            return icons[category] || '🎢';
+        }
+
+        function filterAttractions(category) {
+            appState.currentCategory = category;
+            appState.displayedCount = 12; // Reset pagination
+            
+            // Update active tab
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`[data-category="${category}"]`).classList.add('active');
+            
+            // Filter attractions
+            if (category === 'all') {
